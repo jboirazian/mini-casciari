@@ -1,10 +1,11 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+import sys
 
 STORIES="stories.txt"
 PROMPT="""estos son algunos cuentos de hernan caciari , un famoso escritor argentino.
-Escribe solamente un cuento corto , no olides pornerle titulo , relatado en primera persona , donde el habla de la vez que fue a una heladría y el de adelante se tomaba demasiado su tiempo para elegir el gusto de helado"""
+Escribe solamente un cuento corto , no olides pornerle titulo , relatado en primera persona , el tema del cuento es: """
 
 
 # Load environment variables from .env
@@ -30,7 +31,7 @@ def get_text_from_file(filepath):
         print(f"An error occurred while reading the file: {e}")
         return None
 
-def interact_with_gemini_text_file(filepath):
+def story_generator(filepath,story_topic):
     """
     Interacts with Gemini using the content of a text file.
     The file content is used as part of the initial prompt.
@@ -45,18 +46,19 @@ def interact_with_gemini_text_file(filepath):
     # Start a chat session
     chat = model.start_chat(history=[])
 
-    initial_message = f"{file_content}\n\n{PROMPT}"
+    initial_message = f"{file_content}\n\n{PROMPT} {story_topic}"
     try:
         response = chat.send_message(initial_message)
-        print("\nGemini (initial response):")
         print(response.text)
     except Exception as e:
         print(f"An error occurred during initial Gemini interaction: {e}")
         return
 
-
-def main():
-    interact_with_gemini_text_file(STORIES)
+    
 
 if __name__ == "__main__":
-    main()
+    if(len(sys.argv)==2):
+        story_generator(STORIES,sys.argv[1])
+    else:
+        print(f"Invalid argument. Run the program like this")
+        print(f"{sys.argv[0]} 'tema de la historia'")
